@@ -1,0 +1,420 @@
+/* ============ 全局 ============ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { min-height: 100%; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: linear-gradient(160deg, #1a1a2e 0%, #16213e 55%, #0f3460 100%) fixed;
+  min-height: 100vh;
+  color: #e0e0e0;
+}
+
+.app { padding: 20px; max-width: 1280px; margin: 0 auto; }
+
+/* ============ Header ============ */
+.header { text-align: center; margin-bottom: 24px; }
+
+.header-top {
+  display: flex; align-items: center; justify-content: center;
+  gap: 16px; flex-wrap: wrap; margin-bottom: 14px;
+}
+
+.header h1 {
+  font-size: 2rem; color: #e94560;
+  text-shadow: 0 0 20px rgba(233, 69, 96, 0.45);
+}
+
+.btn-new { padding: 6px 14px; font-size: 0.85rem; }
+
+.tabs { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+
+.tab-btn {
+  padding: 9px 30px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  color: #aaa; font-size: 1rem; border-radius: 22px;
+  cursor: pointer; transition: all 0.25s;
+}
+.tab-btn:hover { background: rgba(233, 69, 96, 0.2); color: #fff; }
+.tab-btn.active {
+  background: #e94560; border-color: #e94560; color: #fff;
+  box-shadow: 0 0 18px rgba(233, 69, 96, 0.4);
+}
+
+/* ============ 面板 ============ */
+.panel {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px; padding: 18px;
+}
+
+.control-panel {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px; padding: 16px 20px; margin-bottom: 18px;
+  display: flex; flex-wrap: wrap; gap: 18px 24px;
+  align-items: center; justify-content: center;
+}
+
+.control-group { display: flex; flex-direction: column; gap: 6px; }
+.control-group label { font-size: 0.82rem; color: #aaa; }
+
+.control-group select,
+.control-group input[type="text"] {
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px; color: #fff; font-size: 0.9rem;
+  outline: none; transition: border-color 0.25s;
+}
+.control-group select:focus,
+.control-group input:focus { border-color: #e94560; }
+.control-group input[type="range"] { width: 150px; }
+
+.hint-num { color: #ff8a9b; }
+
+/* ============ 按钮 ============ */
+.btn-group { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+.btn {
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #e0e0e0; border-radius: 8px; cursor: pointer;
+  font-size: 0.9rem; transition: all 0.18s;
+}
+.btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.2); transform: translateY(-1px); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-primary { background: #e94560; border-color: #e94560; color: #fff; }
+.btn-primary:hover:not(:disabled) { background: #c73650; }
+
+.btn-danger {
+  background: rgba(255, 100, 100, 0.18);
+  border-color: rgba(255, 100, 100, 0.4); color: #ff8080;
+}
+.btn-danger:hover:not(:disabled) { background: rgba(255, 100, 100, 0.38); }
+
+/* ============ 播放区 ============ */
+.play-area {
+  display: grid; grid-template-columns: 300px 1fr;
+  gap: 18px; margin-bottom: 18px;
+}
+
+.fingering-section h3, .sheet-section h3, .panel h4 {
+  color: #e94560; margin-bottom: 12px; font-size: 1.05rem;
+}
+
+.fingering-display {
+  display: flex; justify-content: center; align-items: center;
+  min-height: 380px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 10px; padding: 8px;
+}
+.fingering-display.small { min-height: 260px; }
+
+.current-note {
+  text-align: center; font-size: 1.5rem; font-weight: bold;
+  color: #e94560; margin-top: 10px;
+  text-shadow: 0 0 12px rgba(233, 69, 96, 0.5);
+  min-height: 2rem;
+}
+
+/* ============ 谱面（简谱） ============ */
+.sheet-display {
+  min-height: 380px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 10px; padding: 16px 14px;
+  overflow: auto;
+}
+
+.empty-tip {
+  width: 100%; text-align: center; color: #777;
+  padding: 60px 0; line-height: 2; white-space: normal;
+}
+
+/* 简谱整体：小节流式排列 */
+.jianpu-score {
+  display: flex; flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px 2px; padding: 4px 0 10px;
+}
+
+/* 谱头：调号 + 拍号 */
+.jp-head {
+  display: flex; flex-direction: column;
+  padding: 8px 14px 0 2px; margin-right: 4px;
+  border-right: 1px solid rgba(255, 255, 255, 0.22);
+}
+.jp-key { color: #cdd6ea; font-size: 1rem; font-weight: 700; line-height: 1.3; }
+.jp-ts { color: #9aa7c4; font-size: 0.8rem; line-height: 1.2; }
+/* 谱头速度记号 ♩=BPM（GB/T 46845-2025） */
+.jp-bpm { color: #9aa7c4; font-size: 0.8rem; line-height: 1.4; white-space: nowrap; }
+
+/* 小节与小节线 */
+.jp-measure {
+  display: flex; align-items: flex-start;
+  padding: 2px 9px 2px 3px;
+  border-right: 1.5px solid rgba(255, 255, 255, 0.3);
+}
+
+/* 终止线（细+粗） */
+.jp-end {
+  width: 9px; height: 46px; flex: 0 0 auto;
+  margin: 6px 2px 0 6px;
+  border-left: 1.5px solid #cdd6ea;
+  border-right: 4px solid #cdd6ea;
+  border-radius: 1px;
+}
+
+/* 单个简谱音符 */
+.jp-note {
+  display: flex; flex-direction: column; align-items: center;
+  min-width: 30px; padding: 2px 2px 4px;
+  border: 2px solid transparent; border-radius: 6px;
+  transition: all 0.2s; position: relative;
+}
+.jp-note.active {
+  border-color: #e94560; background: rgba(233, 69, 96, 0.22);
+  box-shadow: 0 0 16px rgba(233, 69, 96, 0.5);
+  transform: scale(1.16); z-index: 2;
+}
+.jp-note.selected { border-color: #ffd700; background: rgba(255, 215, 0, 0.15); }
+.sheet-display.editable .jp-note { cursor: pointer; }
+
+/* 八度点（上/下） */
+.jp-dot-up, .jp-dot-down {
+  min-height: 13px; max-height: 13px;
+  font-size: 13px; line-height: 13px;
+  color: #fff; letter-spacing: 3px;
+  padding-left: 3px; /* 补偿字间距偏移 */
+}
+.jp-dot-up { margin-top: 1px; }
+
+/* 数字行：升号（左上角）+ 数字 + 增时线 + 附点 */
+.jp-mid { display: flex; align-items: baseline; position: relative; }
+/* 变音记号：记在数字左上角（GB/T 46845-2025） */
+.jp-acc {
+  position: absolute; top: -6px; left: -7px;
+  color: #ff8a9b; font-size: 0.72rem; font-weight: 700; line-height: 1;
+}
+.jp-digit {
+  font-size: 1.65rem; font-weight: 700; color: #fff;
+  line-height: 1.05; min-width: 17px; text-align: center;
+}
+.jp-note.rest .jp-digit { color: #7f8aa3; }
+
+/* 附点：写在音符（增时线）右侧，与数字齐平（GB/T 46845-2025） */
+.jp-dot-aug {
+  color: #fff; font-size: 1.35rem; font-weight: 800;
+  margin-left: 3px; line-height: 1; align-self: flex-end;
+}
+
+/* 连音线：弧线画在音符上方，延伸连接到小节内下一音 */
+.jp-slur {
+  position: absolute; top: -6px; left: 50%;
+  width: calc(100% + 12px); height: 10px;
+  border: 1.5px solid rgba(255, 255, 255, 0.8);
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+  pointer-events: none; z-index: 1;
+}
+
+/* 增时线（二分/全音符右侧横线） */
+.jp-adds { display: flex; align-items: center; margin-left: 3px; height: 13px; }
+.jp-add-line {
+  display: inline-block; width: 13px; height: 2.5px;
+  background: #e8e8f0; border-radius: 1px; margin-right: 3px;
+}
+
+/* 减时线（八分/十六分下方横线） */
+.jp-cuts { display: flex; flex-direction: column; gap: 2px; align-items: center; width: 100%; margin-top: 1px; }
+.jp-cut-line { display: block; width: 86%; height: 2px; background: #e8e8f0; border-radius: 1px; }
+
+/* 电吹管专属标注：技巧 + 八度键 */
+.jp-tech {
+  display: flex; align-items: center; gap: 3px;
+  min-height: 12px; margin-top: 4px;
+  font-size: 0.72rem; line-height: 1;
+  white-space: nowrap;
+}
+.jp-tech b { color: #ffb86b; font-size: 0.78rem; }
+.jp-octkey { color: #7ec8ff; font-size: 0.6rem; }
+
+/* 电吹管指法标注 */
+.jp-fing {
+  font-size: 0.64rem; color: #8f9bb3;
+  margin-top: 2px; line-height: 1;
+  white-space: nowrap;
+}
+
+/* ============ 进度条 ============ */
+.progress-wrap { padding: 0 4px; }
+.progress-bar {
+  width: 100%; height: 10px; cursor: pointer;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 5px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, #e94560, #ff6b6b);
+  transition: width 0.08s linear;
+}
+.progress-labels {
+  display: flex; justify-content: space-between;
+  margin-top: 5px; font-size: 0.78rem; color: #aaa;
+}
+
+/* ============ 编辑器 ============ */
+.editor-main {
+  display: grid; grid-template-columns: 300px 1fr;
+  gap: 18px; align-items: start;
+}
+
+.field-label { font-size: 0.82rem; color: #aaa; margin: 12px 0 6px; }
+.note-input-panel > .field-label:first-of-type { margin-top: 0; }
+
+/* 卡片式选择器（八度/时值） */
+.card-select { display: flex; gap: 6px; flex-wrap: wrap; }
+.card-select button {
+  flex: 1; min-width: 62px; padding: 9px 6px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px; color: #cfcfcf;
+  font-size: 0.85rem; cursor: pointer; transition: all 0.2s;
+}
+.card-select button:hover { border-color: rgba(233, 69, 96, 0.6); color: #fff; }
+.card-select button.sel {
+  background: rgba(233, 69, 96, 0.25);
+  border-color: #e94560; color: #fff;
+  box-shadow: 0 0 12px rgba(233, 69, 96, 0.35);
+}
+
+/* 音名网格（简谱命名：数字 + 唱名） */
+.pitch-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.pitch-btn {
+  padding: 6px 0 5px;
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px; color: #e0e0e0;
+  font-size: 0.9rem; cursor: pointer; transition: all 0.2s;
+}
+.pitch-btn .jp-num { font-size: 1.08rem; font-weight: 700; line-height: 1.1; }
+.pitch-btn .jp-solfa { font-size: 0.6rem; font-style: normal; color: #9aa7c4; line-height: 1; }
+.pitch-btn.selected .jp-solfa { color: #ffdde2; }
+.pitch-btn.flat { border-style: dashed; }
+.pitch-btn:hover { background: rgba(233, 69, 96, 0.4); color: #fff; }
+.pitch-btn.selected {
+  background: #e94560; border-color: #ff8a9b; color: #fff;
+  box-shadow: 0 0 12px rgba(233, 69, 96, 0.5);
+}
+
+.add-group { margin-top: 14px; }
+.tip-line { font-size: 0.74rem; color: #777; margin-top: 8px; }
+
+.fingering-preview { margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+.preview-note { color: #ff8a9b; }
+.fingering-text { text-align: center; font-size: 0.78rem; color: #999; margin-top: 8px; }
+
+.sheet-edit-area .sheet-display { min-height: 300px; }
+
+.edit-actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; align-items: center; }
+.sel-info { font-size: 0.8rem; color: #ffd700; }
+
+/* ============ 谱库 ============ */
+.library-toolbar {
+  display: flex; gap: 14px; align-items: center;
+  margin-bottom: 18px; flex-wrap: wrap;
+}
+.lib-count { color: #999; font-size: 0.85rem; }
+
+.library-list {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+.library-item {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px; padding: 16px; transition: all 0.25s;
+}
+.library-item:hover { border-color: #e94560; transform: translateY(-3px); }
+.library-item .lib-name { font-size: 1.08rem; color: #fff; margin-bottom: 6px; }
+.library-item .lib-info { font-size: 0.78rem; color: #aaa; margin-bottom: 12px; }
+.library-item .lib-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.library-item .lib-actions .btn { padding: 5px 12px; font-size: 0.8rem; }
+
+/* ============ SVG 指法图 ============ */
+.wind-body { fill: #2a2a3e; stroke: #575770; stroke-width: 1; }
+.mouthpiece { fill: #3d3d52; stroke: #575770; stroke-width: 1; }
+
+.key-circle {
+  fill: #17172a; stroke: #4a4a63; stroke-width: 1.5;
+  transition: fill 0.15s, stroke 0.15s;
+}
+.key-circle.pressed {
+  fill: #e94560; stroke: #ff8a9b;
+  filter: drop-shadow(0 0 6px #e94560);
+}
+.key-label { fill: #6d6d85; font-size: 11px; text-anchor: middle; }
+.key-label.pressed { fill: #fff; }
+
+.octave-indicator { font-size: 10px; fill: #7a7a92; }
+.octave-indicator.active { fill: #ff8a9b; font-weight: bold; }
+
+.hand-label { fill: #55556e; font-size: 13px; text-anchor: middle; }
+
+/* ============ Toast ============ */
+.toast {
+  position: fixed; top: 18px; left: 50%;
+  transform: translateX(-50%);
+  padding: 11px 28px;
+  background: rgba(10, 10, 22, 0.95);
+  border: 1px solid #e94560;
+  border-radius: 24px; color: #fff;
+  font-size: 0.9rem; z-index: 1000;
+  animation: toastIn 0.25s ease;
+}
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(-14px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* ============ 响应式 ============ */
+@media (max-width: 960px) {
+  .play-area, .editor-main { grid-template-columns: 1fr; }
+  .fingering-display { min-height: 300px; }
+  .sheet-display { min-height: 260px; }
+  .header h1 { font-size: 1.5rem; }
+}
+
+/* 手机竖屏优化 */
+@media (max-width: 600px) {
+  .app { padding: 12px; }
+  .control-panel { flex-direction: column; align-items: stretch; gap: 12px; }
+  .control-group { width: 100%; }
+  .control-group select, .control-group input[type="text"] { width: 100%; }
+  .control-group input[type="range"] { width: 100%; }
+  .btn-group { width: 100%; }
+  .btn-group .btn { flex: 1; min-width: 0; padding: 9px 6px; font-size: 0.85rem; }
+  .pitch-grid { grid-template-columns: repeat(4, 1fr); }
+  .fingering-display { min-height: 240px; }
+  .fingering-display.small { min-height: 200px; }
+  .sheet-display { min-height: 180px; padding: 12px; }
+  .library-list { grid-template-columns: 1fr; }
+  /* 简谱手机优化 */
+  .jp-digit { font-size: 1.4rem; }
+  .jp-note { min-width: 26px; }
+  .jp-note.active { transform: scale(1.12); }
+  .jp-fing { font-size: 0.56rem; }
+  .jp-tech b { font-size: 0.7rem; }
+  .jp-measure { padding: 2px 7px 2px 2px; }
+  .jp-acc { font-size: 0.6rem; top: -5px; left: -6px; }       /* 变音记号缩小 */
+  .jp-dot-aug { font-size: 1.15rem; }                          /* 附点缩小 */
+  .jp-slur { width: calc(100% + 8px); height: 8px; top: -5px; } /* 连音弧线缩短 */
+  .sheet-display { padding: 12px 8px; min-height: 160px; }
+}
+
+/* 技巧卡片中的符号 */
+.card-select .tech-sym { color: #ffb86b; margin-right: 3px; font-weight: 700; }
