@@ -74,6 +74,47 @@ body {
 
 .hint-num { color: #ff8a9b; }
 
+/* ============ 伴奏音乐面板（制作页） ============ */
+.accomp-panel { margin-bottom: 18px; padding: 14px 18px; }
+.accomp-panel h4 { margin-bottom: 10px; }
+.accomp-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.accomp-info { flex: 1; min-width: 220px; }
+.accomp-name {
+  font-size: 0.95rem; font-weight: 600; color: #fff;
+  max-width: 480px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.accomp-status { font-size: 0.8rem; color: #9a9ab0; margin-top: 4px; }
+.accomp-status.ok { color: #6dd5a3; }
+.accomp-status.err { color: #ff8a9b; }
+
+/* AI 识别进度条 */
+.ai-progress {
+  position: relative; height: 22px; margin-top: 8px;
+  background: rgba(0, 0, 0, 0.35); border-radius: 6px; overflow: hidden;
+}
+.ai-progress-bar {
+  position: absolute; inset: 0 auto 0 0; width: 0%;
+  background: linear-gradient(90deg, #e94560, #ff8a9b);
+  transition: width 0.2s;
+}
+.ai-progress span {
+  position: relative; z-index: 1; display: block;
+  font-size: 0.75rem; line-height: 22px; text-align: center; color: #fff;
+}
+
+/* ============ 音轨混音面板（播放页） ============ */
+.mixer-panel { margin-bottom: 18px; padding: 14px 20px; }
+.mixer-panel h3 { margin-bottom: 10px; font-size: 1rem; }
+.track-row {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  padding: 6px 0;
+}
+.track-name { width: 170px; font-size: 0.85rem; color: #ccc; }
+.track-ctrl { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 200px; }
+.track-ctrl input[type="range"] { flex: 1; max-width: 280px; }
+.mute-btn { padding: 4px 10px; font-size: 0.95rem; }
+.mute-btn.muted { opacity: 0.5; }
+
 /* ============ 按钮 ============ */
 .btn-group { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 

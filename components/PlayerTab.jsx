@@ -19,6 +19,10 @@ export default function PlayerTab({ sheets, playingId, onPlayingIdChange, onEdit
   const [cur, setCur] = useState(null);        // {note, index}
   const [prog, setProg] = useState({ t: 0, total: 0 });
   const [state, setState] = useState({ playing: false, paused: false });
+  // 音轨混音（旋律合成轨 + 伴奏音频轨）
+  const [melodyVol, setMelodyVol] = useState(30);
+  const [accompVol, setAccompVol] = useState(80);
+  const [accompMuted, setAccompMuted] = useState(false);
 
   // 初始化播放器
   useEffect(() => {
@@ -136,6 +140,51 @@ export default function PlayerTab({ sheets, playingId, onPlayingIdChange, onEdit
           )}
         </div>
       </div>
+
+      {/* 音轨混音：旋律合成轨 + 伴奏音频轨（谱面带伴奏时显示） */}
+      {hasSheet && sheet?.audioUrl && (
+        <div className="panel mixer-panel">
+          <h3>🎚 音轨混音</h3>
+          <div className="track-row">
+            <span className="track-name">旋律（电吹管合成）</span>
+            <div className="track-ctrl">
+              <button className={`btn mute-btn${melodyVol === 0 ? ' muted' : ''}`}
+                title="静音/恢复旋律轨"
+                onClick={() => {
+                  const v = melodyVol === 0 ? 30 : 0;
+                  setMelodyVol(v);
+                  audioEngine.setVolume(v / 100);
+                }}>🔈</button>
+              <input type="range" min="0" max="100" value={melodyVol}
+                onChange={(e) => {
+                  const v = Number(e.target.value);
+                  setMelodyVol(v);
+                  audioEngine.setVolume(v / 100);
+                }} />
+              <span className="hint-num">{melodyVol}%</span>
+            </div>
+          </div>
+          <div className="track-row">
+            <span className="track-name">伴奏音乐</span>
+            <div className="track-ctrl">
+              <button className={`btn mute-btn${accompMuted ? ' muted' : ''}`}
+                title="静音/恢复伴奏轨"
+                onClick={() => {
+                  const m = !accompMuted;
+                  setAccompMuted(m);
+                  playerRef.current?.setAccompMuted(m);
+                }}>{accompMuted ? '🔇' : '🔈'}</button>
+              <input type="range" min="0" max="100" value={accompVol}
+                onChange={(e) => {
+                  const v = Number(e.target.value);
+                  setAccompVol(v);
+                  playerRef.current?.setAccompVolume(v / 100);
+                }} />
+              <span className="hint-num">{accompVol}%</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 播放区 */}
       <div className="play-area">

@@ -36,6 +36,15 @@ export default function EditorTab({ initial, onSave, onDelete, showToast }) {
   const [notes, setNotes] = useState(initial?.notes || []);
   const [selected, setSelected] = useState(-1);
 
+  // 伴奏音乐（AI 识别源 + 播放页伴音轨）
+  const [audioName, setAudioName] = useState('');        // 已选文件名
+  const [audioUrl, setAudioUrl] = useState(initial?.audioUrl || ''); // 云端地址（保存到谱面）
+  const [audioBuffer, setAudioBuffer] = useState(null);  // 解码音频（本地识别用）
+  const [uploadState, setUploadState] = useState(audioUrl ? 'ok' : ''); // ''/busy/ok/local
+  const [ai, setAi] = useState({ state: '', pct: 0, msg: '' }); // AI 识别状态
+  const audioInputRef = useRef(null);
+
+
   // 输入选择器
   const [pitch, setPitch] = useState('C');
   const [octave, setOctave] = useState(4);
@@ -133,7 +142,83 @@ export default function EditorTab({ initial, onSave, onDelete, showToast }) {
   const currentData = () => ({
     name: name.trim() || '未命名曲目',
     key, timeSignature: timeSig, bpm, notes,
+    audioUrl: audioUrl || '',
   });
+
+  // ============ 伴奏音乐：选择 → 解码 → 上传云存储 ============
+
+  const onAudioFile = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    if (file.size > 15 * 1024 * 1024) { showToast('音频超过 15MB 限制'); return; }
+    setAudioName(file.name);
+    try {
+      const raw = await file.arrayBuffer();
+      const ctx = new AudioContext();
+      const decoded = await ctx.decodeAudioData(raw);
+      ctx.close();
+      setAudioBuffer(decoded);
+      uploadAudio(file);
+    } catch {
+      setAudioName('');
+      showToast('音频解码失败，请换 MP3/WAV/OGG 格式');
+    }
+  };
+
+  // 上传 Vercel Blob（本地开发未配置时降级：仅本次会话识别可用，不持久化伴奏）
+  const uploadAudio = async (file) => {
+    setUploadState('busy');
+    const fd = new FormData();
+    fd.append('audio', file);
+    try {
+      const r = await fetch('/api/upload', { method: 'POST', body: fd });
+      const j = await r.json();
+      if (r.ok && j.url) {
+        setAudioUrl(j.url);
+        setUploadState('ok');
+      } else {
+        setUploadState('local');
+      }
+    } catch {
+      setUploadState('local');
+    }
+  };
+
+  const removeAudio = () => {
+    setAudioName('');
+    setAudioUrl('');
+    setAudioBuffer(null);
+    setUploadState('');
+    setAi({ state: '', pct: 0, msg: '' });
+  };
+
+  // ============ AI 识别主旋律 → 简谱音符 ============
+
+  const runTranscribe = async () => {
+    if (!audioBuffer) return;
+    setAi({ state: 'run', pct: 0, msg: '模型加载中…' });
+    try {
+      const { transcribeAudio } = await import('@/lib/transcribe');
+      const res = await transcribeAudio(audioBuffer, {
+        bpm,
+        onProgress: (p) => setAi({ state: 'run', pct: p, msg: `AI 识别中 ${p}%` }),
+      });
+      if (!res.notes.length) {
+        setAi({ state: 'err', pct: 0, msg: '未识别出旋律' });
+        showToast('未识别出主旋律，请尝试更清晰的音频');
+        return;
+      }
+      commit(() => { setNotes(res.notes); setSelected(-1); });
+      setAi({ state: 'ok', pct: 100, msg: `已生成 ${res.count} 个音符，请试听微调` });
+      showToast(`AI 识别完成：${res.count} 个音符`);
+    } catch (e) {
+      console.error('[AI 识别失败]', e);
+      setAi({ state: 'err', pct: 0, msg: '识别失败：' + (e?.message || String(e)).slice(0, 120) });
+      showToast('AI 识别失败：' + (e?.message || '未知错误'));
+    }
+  };
+
 
   const togglePreview = () => {
     const p = previewRef.current;
@@ -202,6 +287,48 @@ export default function EditorTab({ initial, onSave, onDelete, showToast }) {
           </button>
           <button className="btn" onClick={exportJson} disabled={!notes.length}>📤 导出</button>
           {!isNew && <button className="btn btn-danger" onClick={del}>🗑 删除此曲</button>}
+        </div>
+      </div>
+
+      {/* 伴奏音乐：AI 识别源 + 播放页伴音轨 */}
+      <div className="panel accomp-panel">
+        <h4>🎧 伴奏音乐</h4>
+        <div className="accomp-row">
+          <div className="accomp-info">
+            {audioName ? (
+              <>
+                <div className="accomp-name" title={audioName}>{audioName}</div>
+                <div className="accomp-status">
+                  {uploadState === 'busy' && '⏳ 上传云存储中…'}
+                  {uploadState === 'ok' && '✓ 已存云端（保存后播放页可伴音）'}
+                  {uploadState === 'local' && '⚠ 本地开发未配置云存储：仅本次会话可识别，伴奏不保存'}
+                </div>
+              </>
+            ) : (
+              <div className="accomp-status">选择 MP3/WAV 伴奏，可 AI 识别主旋律自动生成简谱</div>
+            )}
+            {ai.state === 'run' && (
+              <div className="ai-progress">
+                <div className="ai-progress-bar" style={{ width: `${ai.pct}%` }} />
+                <span>{ai.msg}</span>
+              </div>
+            )}
+            {ai.state === 'ok' && <div className="accomp-status ok">🤖 {ai.msg}</div>}
+            {ai.state === 'err' && <div className="accomp-status err">🤖 {ai.msg}</div>}
+          </div>
+          <input ref={audioInputRef} type="file" accept="audio/*" hidden onChange={onAudioFile} />
+          <div className="btn-group">
+            <button className="btn" onClick={() => audioInputRef.current?.click()}>
+              🎧 选择音频
+            </button>
+            <button className="btn btn-primary" onClick={runTranscribe}
+              disabled={!audioBuffer || ai.state === 'run'}>
+              {ai.state === 'run' ? '⏳ 识别中…' : '🤖 AI 识别主旋律'}
+            </button>
+            {(audioName || audioUrl) && (
+              <button className="btn btn-danger" onClick={removeAudio}>✕ 移除</button>
+            )}
+          </div>
         </div>
       </div>
 

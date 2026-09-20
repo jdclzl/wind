@@ -9,7 +9,12 @@
     "start": "next start"
   },
   "dependencies": {
+    "@coderline/alphatab": "^1.8.4",
+    "@coderline/alphatab-webpack": "^1.8.4",
     "@neondatabase/serverless": "^0.10.0",
+    "@spotify/basic-pitch": "^1.0.1",
+    "@vercel/blob": "^2.8.0",
+    "musicxml-io": "^0.10.3",
     "next": "^15.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
