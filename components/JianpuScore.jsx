@@ -185,8 +185,9 @@ export default function JianpuScore({
       jpInfo,
       {
         noteHeight: 28,
-        noteColor: '#222',
-        activeNoteColor: '#e53e3e',
+        // 谱纸 + 深色音符：模拟真实印刷简谱，对比度最强
+        noteColor: '#1a1a2e',
+        activeNoteColor: '#e94560',
         scrollType: 0, // PAGE
       },
       containerRef.current,
@@ -263,6 +264,11 @@ export default function JianpuScore({
         width: '100%',
         minHeight: '120px',
         position: 'relative',
+        // 谱纸感背景：微灰白 + 细网格，让白/亮色音符最清晰
+        background: 'linear-gradient(180deg, #fafbfc 0%, #f2f4f7 100%)',
+        borderRadius: '8px',
+        padding: '8px 10px',
+        boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.06)',
       }}
     />
   );
